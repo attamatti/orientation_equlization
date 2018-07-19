@@ -20,7 +20,7 @@ part_angdist_eq.py
         It chooses which particles to throw away based on their _rlnMaxValueProbDistribution values
         This should throw away the 'worst' particles keeping the better ones (need to check if this is the right way to be doing this)
         If every sub-bin has reached 1 particle it stops, even if the target number has not been reached
-        Varying the numbe rof sub-bins doesn't seem to have much effect
+        Varying the number of sub-bins doesn't seem to have much effect
 
 4) It then repeats the process for each of the bad bins amd writes out a new star file
 
@@ -37,6 +37,11 @@ plt.png - a histogram of the user specified bins with # of particles in each
 BBnnn-fixed.png - for each bad bin a histogram of particle counts of the sub-bins, blue are the particles that were kept and yellow were those that were thrownaway
 filtered_starfile.star - the new starfile.
 
+written for python 2.x
+Required python modules
+mumpy
+maplotlib
+sys
 
 *******************
 analyze_bildfile.py
