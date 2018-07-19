@@ -3,12 +3,12 @@
 # filter particles remove over represented views
 # keep the bast particles (highest MaxValueProbDistribution ) **** is this correct?
 # TO DO:
-#       thurough check that it is removing teh right particles
+#       thurough check that it is removing the right particles
 #       test in dave's ribosomes - find more aniostropic datasets to test on
-#       make the cutoff for when a bin has too many parts adjustable - currently 2 standard deviations above mean for all bins? *** what is a good number for this?
-#       write a script to compare bild files?
 
 
+
+vers = 0.1
 
 import sys
 import matplotlib.pyplot as plt
@@ -30,6 +30,9 @@ def read_starfile(f):
             header.append(i.strip("\n"))
     return(labelsdic,header,data)
 #---------------------------------------------------------------------------------------------#
+
+if len(sys.argv) != 4:
+    sys.exit('USAGE: part_angdist_eq.py <starfile> <# initial bins> <# std for filtering>')
 
 
 (labels,header,data) = read_starfile(sys.argv[1])
@@ -73,7 +76,7 @@ ibinsize,ibincounts,ivec_dic = initial_find_num_bins(int(sys.argv[2]))
 fig = plt.figure()
 ax = fig.add_subplot(111)
 number = range(len(ibincounts))
-ax.bar(number,ibincounts)
+ax.hist(ibincounts)
 plt.savefig('plt.png')
 plt.close()
 
@@ -81,12 +84,17 @@ plt.close()
 meanperbin,std = (np.mean(ibincounts),np.std(ibincounts))   # mean parts/bin and standard dev
 target_parts = int(meanperbin+(nstd*std))                   # target number of particles in bin
 
+print('there are {0} bins with a mean of {1} particles/bin standard dev of {2}'.format(len(ibincounts),meanperbin,std))
+print('the target number of particles/bin is {0} '.format(target_parts))
+
 #identify the bad bins
 badbins = []
 for i in ivec_dic:
     if len(ivec_dic[i]) > target_parts:
         badbins.append(i)
 print(' {0} bins have more than {1} std dev particles'.format(len(badbins),nstd))
+wait = raw_input('\npress enter to go!')
+
 
 
 def make_subvecdic(vecdata,bin):
@@ -101,6 +109,8 @@ def make_subvecdic(vecdata,bin):
 
 def find_num_subbins(subvecdata,nbins):
     '''find the right number of bins for all parts, with increment of 1'''
+    if int(nbins) == 0:
+        nbins=1
     print('*** getting sampling for {0} (rot,tilt,psi) bins ***'.format(int(nbins)))
     binsize = 1
     test = nbins+1
@@ -112,6 +122,8 @@ def find_num_subbins(subvecdata,nbins):
             bincount.append(len(vecdic[i]))
         print('mincount/maxcount',min(bincount),max(bincount))
         binsize +=1
+        if min(bincount) == max(bincount):
+            break
     print('using bin size of {0} degrees'.format(binsize))
     return(binsize,bincount,vecdic)
 
@@ -146,13 +158,16 @@ def get_to_target(datain,diccount,target):       # datain = vectors dic from bid
         total = gettotal(datain)
     return(datain)
 
-# each bad bin divide it into n/10 subbins - reduce the number of particles until its total <= mean +2 std dev
+# each bad bin divide it into n/10 subbins - reduce the number of particles until its total <= mean +n std dev
 # put these particles in a list of good parts
 goodparts = []
 bbcount = 1
 for i in badbins:
     print('\nworking on bad bin #{0} - {1} particles'.format(bbcount,len(ivec_dic[i])))
-    subsize,subcount,subvecdic = find_num_subbins(ivec_dic[i],round(len(ivec_dic[i])/10,0))
+    working_subbins = round(len(ivec_dic[i])/10,0)
+    if working_subbins < 1:
+        working_subbins = 1
+    subsize,subcount,subvecdic = find_num_subbins(ivec_dic[i],working_subbins)
     if subsize < 2:
         subsize=2
     fig = plt.figure()
