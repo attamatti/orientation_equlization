@@ -9,7 +9,6 @@
 #       write a script to compare bild files?
 
 
-###### ned to fic problem of throwing away all particle if group s too large
 
 import sys
 import matplotlib.pyplot as plt
