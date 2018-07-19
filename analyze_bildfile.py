@@ -46,7 +46,7 @@ for i in sys.argv[1:]:
     plt.title(i)
     plt.ylim(0, ymax)
     plt.ylabel('cylinders', fontsize=8)
-    plt.ylabel('length', fontsize=8)
+    plt.xlabel('length', fontsize=8)
     plt.tick_params(axis='both', which='major', labelsize=8)
     plt.hist(check_bildfile(i))
     plotcount +=1

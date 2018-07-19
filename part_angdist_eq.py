@@ -6,6 +6,10 @@
 #       thurough check that it is removing the right particles
 #       test in dave's ribosomes - find more aniostropic datasets to test on
 
+# FIXES/IMPROVEMENTS
+
+# throws away maore parts than necessary: if bin is 1 part away from target and 10 subbins have the max number of particles it will throw away 1 from all 10
+# rather than just throwing away 1. don't know if this s necessaraly a bad thing. 
 
 
 vers = 0.1
@@ -77,6 +81,8 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 number = range(len(ibincounts))
 ax.hist(ibincounts)
+plt.ylabel('Particles', fontsize=10)
+plt.xlabel('Sub-bin #', fontsize=10)
 plt.savefig('plt.png')
 plt.close()
 
@@ -93,6 +99,7 @@ for i in ivec_dic:
     if len(ivec_dic[i]) > target_parts:
         badbins.append(i)
 print(' {0} bins have more than {1} std dev particles'.format(len(badbins),nstd))
+print('make sure these numbers are reasonable...')
 wait = raw_input('\npress enter to go!')
 
 
@@ -171,6 +178,8 @@ for i in badbins:
     if subsize < 2:
         subsize=2
     fig = plt.figure()
+    plt.ylabel('Particles', fontsize=10)
+    plt.xlabel('Bin #', fontsize=10)
     ax = fig.add_subplot(111)
     number = range(len(subcount))
     ax.bar(number,subcount,color='yellow')

@@ -6,10 +6,11 @@ part_angdist_eq.py
 
 1) Divides the particles into a user specified number of bins based on their orientations -
         I haven't figured out the best method to determine what this number should be yet
-        in the test cases i used 500 for a 12K particle set and 1000 for a 300k particle set
+        In the initial tests 240K particle dataset 3000 gave a better reults than 1000 
         
 2) It divides the bins into 'good' and 'bad' based on how many paticles each has
         if a bin's particle count is greater than a user specified number of standard deviations above the mean it is labelled 'bad'
+        Inital runs were tested with 0 (using the mean value) values larger than 0 didn't seem to have very much effect , negative values (0.25) should work, but make sure the target particle number isn't negative   
 
 3) Then divides each bad bin into n/10 sub-bins
         (n = total number of particles in the original bin)
@@ -19,6 +20,7 @@ part_angdist_eq.py
         It chooses which particles to throw away based on their _rlnMaxValueProbDistribution values
         This should throw away the 'worst' particles keeping the better ones (need to check if this is the right way to be doing this)
         If every sub-bin has reached 1 particle it stops, even if the target number has not been reached
+        Varying the numbe rof sub-bins doesn't seem to have much effect
 
 4) It then repeats the process for each of the bad bins amd writes out a new star file
 
