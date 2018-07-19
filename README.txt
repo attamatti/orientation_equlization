@@ -18,12 +18,13 @@ part_angdist_eq.py
         Target number of particle is the same user specified number of standard deviations above the mean for all bins as above
         It chooses which particles to throw away based on their _rlnMaxValueProbDistribution values
         This should throw away the 'worst' particles keeping the better ones (need to check if this is the right way to be doing this)
+        If every sub-bin has reached 1 particle it stops, even if the target number has not been reached
 
 4) It then repeats the process for each of the bad bins amd writes out a new star file
 
 USAGE:
 
-python part_angdist_eq.py <particles starfil> <numbe rof bins> <number of standard deviations>
+python part_angdist_eq.py <particles starfile> <number of bins> <number of standard deviations>
 
 IE:
 
