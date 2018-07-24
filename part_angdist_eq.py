@@ -35,9 +35,11 @@ def read_starfile(f):
     return(labelsdic,header,data)
 #---------------------------------------------------------------------------------------------#
 
-if len(sys.argv) != 4:
-    sys.exit('USAGE: part_angdist_eq.py <starfile> <# initial bins> <# std for filtering>')
-
+if len(sys.argv) not in [4,5]:
+    sys.exit('USAGE: part_angdist_eq.py <starfile> <# initial bins> <# std for filtering> --write_graphs')
+write_graphs = False
+if '--write_graphs' in sys.argv:
+    write_graphs = True
 
 (labels,header,data) = read_starfile(sys.argv[1])
 nbins = int(sys.argv[2])
@@ -68,7 +70,9 @@ def initial_find_num_bins(nbins):
         bincount = []
         for i in vecdic:
             bincount.append(len(vecdic[i]))
-        print('total/minbincount/maxbincount',test,min(bincount),max(bincount))
+        sys.stdout.write('.')
+        sys.stdout.flush()
+        #print('total/minbincount/maxbincount',test,min(bincount),max(bincount))
         binsize +=1
     print('using bin size of {0} degrees'.format(binsize))
     return(binsize,bincount,vecdic)
@@ -77,28 +81,29 @@ def initial_find_num_bins(nbins):
 ibinsize,ibincounts,ivec_dic = initial_find_num_bins(int(sys.argv[2]))
 
 # initial plot
-fig = plt.figure()
-ax = fig.add_subplot(111)
-number = range(len(ibincounts))
-ax.hist(ibincounts)
-plt.ylabel('Particles', fontsize=10)
-plt.xlabel('Sub-bin #', fontsize=10)
-plt.savefig('plt.png')
-plt.close()
+if write_graphs == True:
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    number = range(len(ibincounts))
+    ax.hist(ibincounts)
+    plt.ylabel('Particles', fontsize=10)
+    plt.xlabel('Sub-bin #', fontsize=10)
+    plt.savefig('plt.png')
+    plt.close()
 
 # mean # of parts in bin
 meanperbin,std = (np.mean(ibincounts),np.std(ibincounts))   # mean parts/bin and standard dev
 target_parts = int(meanperbin+(nstd*std))                   # target number of particles in bin
 
 print('there are {0} bins with a mean of {1} particles/bin standard dev of {2}'.format(len(ibincounts),meanperbin,std))
-print('the target number of particles/bin is {0} '.format(target_parts))
+print('the target number of particles/bin is {0} (mean + {1} std) '.format(target_parts,nstd))
 
 #identify the bad bins
 badbins = []
 for i in ivec_dic:
     if len(ivec_dic[i]) > target_parts:
         badbins.append(i)
-print(' {0} bins have more than {1} std dev particles'.format(len(badbins),nstd))
+print(' {0} bins have more particles than the target'.format(len(badbins)))
 print('make sure these numbers are reasonable...')
 wait = raw_input('\npress enter to go!')
 
@@ -127,7 +132,9 @@ def find_num_subbins(subvecdata,nbins):
         bincount = []
         for i in vecdic:
             bincount.append(len(vecdic[i]))
-        print('mincount/maxcount',min(bincount),max(bincount))
+        sys.stdout.write('.')
+        sys.stdout.flush()
+        #print('mincount/maxcount',min(bincount),max(bincount))
         binsize +=1
         if min(bincount) == max(bincount):
             break
@@ -158,7 +165,7 @@ def get_to_target(datain,diccount,target):       # datain = vectors dic from bid
                     if i not in zerocount:
                         zerocount.append(i)
             if len(zerocount) == len(datain):
-                print('stopping because population of all bins = 1')
+                print('stopping because population of all sub-bins = 1')
                 return(datain)
                 
         maxno -=1
@@ -166,6 +173,7 @@ def get_to_target(datain,diccount,target):       # datain = vectors dic from bid
     return(datain)
 
 # each bad bin divide it into n/10 subbins - reduce the number of particles until its total <= mean +n std dev
+# set min number of bins to 2
 # put these particles in a list of good parts
 goodparts = []
 bbcount = 1
@@ -175,14 +183,10 @@ for i in badbins:
     if working_subbins < 1:
         working_subbins = 1
     subsize,subcount,subvecdic = find_num_subbins(ivec_dic[i],working_subbins)
-    if subsize < 2:
-        subsize=2
-    fig = plt.figure()
-    plt.ylabel('Particles', fontsize=10)
-    plt.xlabel('Bin #', fontsize=10)
-    ax = fig.add_subplot(111)
+    
+
     number = range(len(subcount))
-    ax.bar(number,subcount,color='yellow')
+    
     print('cutting particles to get to the target')
     subvecdic_fixed = get_to_target(subvecdic,subcount,target_parts)
     print ('final total:',gettotal(subvecdic_fixed))
@@ -190,12 +194,19 @@ for i in badbins:
     for i in subvecdic_fixed:
         newcount.append(len(subvecdic_fixed[i]))    
     number = range(len(newcount))
-    ax.bar(number,newcount,color='blue')
-    plt.savefig('BB{0:03}-fixed.png'.format(bbcount))
-    plt.close()
+    if write_graphs == True:
+        ax = fig.add_subplot(111)
+        ax.bar(number,subcount,color='yellow')
+        fig = plt.figure()
+        plt.ylabel('Particles', fontsize=10)
+        plt.xlabel('Bin #', fontsize=10)
+        ax.bar(number,newcount,color='blue')
+        plt.savefig('BB{0:03}-fixed.png'.format(bbcount))
+        plt.close()
+    
     print('**')
-    print ('PARTICLES/BIN OLD',subcount)
-    print ('PARTICLES/BIN NEW',newcount)
+    print ('PARTICLES/SUB-BIN OLD',subcount)
+    print ('PARTICLES/SUB-BIN NEW',newcount)
     print('**')
     bbcount +=1
     # then add them to the list of good particles:
