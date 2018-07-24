@@ -138,7 +138,7 @@ def find_num_subbins(subvecdata,nbins):
         binsize +=1
         if min(bincount) == max(bincount):
             break
-    print('using bin size of {0} degrees'.format(binsize))
+    print('using bin size of {0} degrees - {1} bin(s)'.format(binsize,test))
     return(binsize,bincount,vecdic)
 
 
