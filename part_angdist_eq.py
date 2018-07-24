@@ -125,8 +125,8 @@ def find_num_subbins(subvecdata,nbins):
         nbins=1
     print('*** getting sampling for {0} (rot,tilt,psi) bins ***'.format(int(nbins)))
     binsize = 1
-    test = nbins+1
-    while test > nbins:
+    test = nbins
+    while test >= nbins:
         vecdic = make_subvecdic(subvecdata,binsize)
         test = len(vecdic)
         bincount = []
