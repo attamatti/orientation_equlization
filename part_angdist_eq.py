@@ -21,17 +21,25 @@ import numpy as np
 
 ###---------function: read the star file get the header, labels, and data -------------#######
 def read_starfile(f):
+    inhead = True
     alldata = open(f,'r').readlines()
     labelsdic = {}
     data = []
     header = []
+    count = 0
+    labcount = 0
     for i in alldata:
-        if '#' in i:
-            labelsdic[i.split('#')[0]] = int(i.split('#')[1])-1
-        if len(i.split()) > 3:
-            data.append(i.split())
-        if len(i.split()) < 3:
+        if '_rln' in i and '#' in i:
+            labelsdic[i.split('#')[0]] = labcount
+            labcount+=1
+        if inhead == True:
             header.append(i.strip("\n"))
+            if '_rln' in i and '#' in i and  '_rln' not in alldata[count+1] and '#' not in alldata[count+1]:
+                inhead = False
+        elif len(i.split())>=1:
+            data.append(i.split())
+        count +=1
+    
     return(labelsdic,header,data)
 #---------------------------------------------------------------------------------------------#
 
