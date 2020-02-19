@@ -1,4 +1,14 @@
 WHAT THE SCRIPTS DO:
+*******************
+ang_dist_eq_2.py - UPDATED FOR 02/2020!
+*******************
+A completely different method of angular distribution equalization based off of my make_minimal_classes script in the automated model generation repo.
+
+It takes the starfile output by a select job on a Class2D run.  Works for either Relion 3.0 or 3.1
+
+This is a much simpler method each class is only allowed to have a certain percentage of a standard deviation of particles over the mean number in all good classes.  Particles are thrown away based on _rlnMaxValueProbDistribution values as below. 
+
+USAGE: ang_dist_eq_2.py <starfile from select job of class2D> <# of STDs>
 
 *******************
 part_angdist_eq.py
